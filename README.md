@@ -1,5 +1,5 @@
 # Pflanzenüberwachung
-## Nutzung eines Xiaomi Mi Flora Sensors zur smarten Überwachung einer Zimmerpflanze
+## Nutzung eines Xiaomi Mi Flora Sensors zur smarten Überwachung von Zimmerpflanzen
 
 In dem Projekt werden von den Pflanzen Umgebungs- temperatur und helligkeit und Fruchtbarkeit und Feuchtigkeit mit dem Mi Flora Sensor erfasst und zu einem hilfreichen Output via Telegram verarbeitet.
 
@@ -9,8 +9,8 @@ Um die Daten dann langfristig untersuchen zu können werden diese vom Raspberry 
 
 In der Zeitreihendatenbank können die erfassten Daten nun mithilfe von Flux weiterverarbeitet und analysiert werden. 
 
-Mithilfe des Flux Telegram package können nun beim Überschreiten verschiedener Schwellwerte Aufforderung verschickt werden.
-Zum beispiel kann bei zu geringer Bodenfeuchtigkeit einer Pflanze eine Nachricht verschickt werden, dass die Pflanze gegossen werden muss.
+Mithilfe von influx Alerts in Kombination mit einem Python-Skript können nun beim Überschreiten verschiedener Schwellwerte Aufforderung verschickt werden.
+Zum Beispiel kann bei zu geringer Bodenfeuchtigkeit einer Pflanze eine Nachricht verschickt werden, dass die Pflanze gegossen werden muss.
 
 
 ## Setup
@@ -28,6 +28,7 @@ Bei mir läuft diese in einem Dockercontainer auf dem Hochschulserver. Die Daten
 
 ### Sensor
 
+Beim Sensorkauf ist es wichtig darauf zu achten, dass man die Version mit Bluetooth kauft.
 Nun muss der Pflanzensensor aktiviert werden und dessen Bluetooth Mac Adresse herausgefunden werden.
 
 Die Bluetooth MAC des Mi Flora Sensors kann man unter Linux mit dem Befehl:
@@ -42,6 +43,7 @@ Für das Python Skript sensorHandler.py müssen zwei Bibliotheken installiert we
 
     sudo pip3 install miflora
     sudo pip3 install btlewrap
+    sudo pip3 install influxdb-client
 
 Nun müssen in der sensorHandler die Werte für die InfluxDB sowie die Namen und MAC Adressen eingetragen werden.
 
@@ -67,10 +69,16 @@ https://core.telegram.org/bots
 
 ### InfluxDB 2.0 Alerts
 
-https://github.com/influxdata/flux/issues/2442
+Jetzt kann man in InfluxDB Alerts definieren.
+Diese stellen die Basis für die Benachrichtigung via Telegram dar.
 
-![](2020-12-29-10-58-17.png)
-![](2020-12-29-11-33-13.png)
+### Python Benachrichtigungsskript
+
+Mit diesem Skript werden die Alerts aus der InfluxDB abgefragt und verständliche Textnachrichten erzeugt, die dann per Telegram verschickt werden. Um dieses Skript täglich um 16:00 auszuführen sollte man folgenden Crontab erstellen:
+
+    0 16 * * * /pathToFile/plantMessenger.py
+
+Ich habe dem Projekt als Beispiel das Skript meiner Yucca Palme angehängt.
 
 
 
